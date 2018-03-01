@@ -1,18 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="me.huntto.brush.MainActivity">
 
-    <TextView
+    <me.huntto.brush.view.BoardView
+        android:id="@+id/boardView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_gravity="bottom|center"
+        android:orientation="horizontal">
 
-</android.support.constraint.ConstraintLayout>
+
+        <CheckBox
+            android:id="@+id/brushBtn"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="@dimen/btnWidth"
+            android:layout_height="@dimen/btnHeight"
+            android:layout_margin="@dimen/btnMargin"
+            android:button="@null"
+            android:checked="true"
+            android:drawableStart="@drawable/btn_brush_bg" />
+
+        <CheckBox
+            android:id="@+id/eraserBtn"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="@dimen/btnWidth"
+            android:layout_height="@dimen/btnHeight"
+            android:layout_margin="@dimen/btnMargin"
+            android:button="@null"
+            android:checked="false"
+            android:drawableStart="@drawable/btn_eraser_bg" />
+
+        <Button
+            android:id="@+id/undoBtn"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="@dimen/btnWidth"
+            android:layout_height="@dimen/btnHeight"
+            android:layout_margin="@dimen/btnMargin"
+            android:drawableStart="@drawable/btn_undo_bg"
+            android:enabled="false" />
+
+        <Button
+            android:id="@+id/redoBtn"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="@dimen/btnWidth"
+            android:layout_height="@dimen/btnHeight"
+            android:layout_margin="@dimen/btnMargin"
+            android:drawableStart="@drawable/btn_redo_bg"
+            android:enabled="false" />
+
+        <Button
+            android:id="@+id/cleanBtn"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="@dimen/btnWidth"
+            android:layout_height="@dimen/btnHeight"
+            android:layout_margin="@dimen/btnMargin"
+            android:drawableStart="@drawable/btn_clean_bg" />
+
+    </LinearLayout>
+</FrameLayout>
