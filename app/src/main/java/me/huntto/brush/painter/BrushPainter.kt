@@ -4,6 +4,7 @@ import android.graphics.Canvas
 import android.graphics.Rect
 import me.huntto.brush.content.Ink
 import me.huntto.brush.content.Point
+import java.util.*
 
 abstract class BrushPainter(protected val canvas: Canvas) {
     abstract val type: Ink.Type
@@ -24,3 +25,17 @@ abstract class BrushPainter(protected val canvas: Canvas) {
     }
 }
 
+object BrushPainterCache {
+    private val brushPainterMap = HashMap<Ink.Type, Deque<BrushPainter>>()
+
+    fun put(brushPainter: BrushPainter) {
+        if (brushPainterMap[brushPainter.type] == null) {
+            brushPainterMap[brushPainter.type] = LinkedList<BrushPainter>()
+        }
+        brushPainterMap[brushPainter.type]?.add(brushPainter)
+    }
+
+    fun get(type: Ink.Type, canvas: Canvas): BrushPainter {
+        return brushPainterMap[type]?.remove() ?: BrushPainter.newInstance(type, canvas)
+    }
+}

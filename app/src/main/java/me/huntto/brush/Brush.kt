@@ -8,8 +8,7 @@ import me.huntto.brush.content.Ink
 import me.huntto.brush.content.Point
 import me.huntto.brush.log.logD
 import me.huntto.brush.painter.BrushPainter
-import me.huntto.brush.painter.EraserPainter
-import me.huntto.brush.painter.PencilPainter
+import me.huntto.brush.painter.BrushPainterCache
 import me.huntto.brush.view.IBoardView
 
 class Brush(contentWidth: Int, contentHeight: Int, private val boardView: IBoardView) : View.OnTouchListener {
@@ -59,9 +58,7 @@ class Brush(contentWidth: Int, contentHeight: Int, private val boardView: IBoard
     private fun start(pointerId: Int, point: Point) {
         if (pointerCount < maxPointer) {
             pointerCount++
-            if (brushPainters[pointerId] == null || brushPainters[pointerId]?.type != type) {
-                brushPainters[pointerId] = BrushPainter.newInstance(type, contentCanvas)
-            }
+            brushPainters[pointerId] = BrushPainterCache.get(type, contentCanvas)
             brushPainters[pointerId]?.let {
                 it.startStroke(point, dirtyRect)
                 boardView.lockCanvas(dirtyRect)?.let {
@@ -116,6 +113,7 @@ class Brush(contentWidth: Int, contentHeight: Int, private val boardView: IBoard
                 it.drawBitmap(contentBitmap, dirtyRect, dirtyRect, null)
                 boardView.unlockCanvasAndPost(it)
             }
+            BrushPainterCache.put(it)
             onGenerateInkListener?.invoke(ink)
             pointerCount--
         }
@@ -146,13 +144,9 @@ class Brush(contentWidth: Int, contentHeight: Int, private val boardView: IBoard
     fun draw(inks: ArrayList<Ink>) {
         contentCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
         inks.forEach {
-            when (it.type) {
-                Ink.Type.ERASER -> {
-                    EraserPainter(contentCanvas).draw(it)
-                }
-                else -> {
-                    PencilPainter(contentCanvas).draw(it)
-                }
+            BrushPainterCache.get(it.type, contentCanvas).apply {
+                draw(it)
+                BrushPainterCache.put(this)
             }
         }
         boardView.lockCanvas()?.let {
