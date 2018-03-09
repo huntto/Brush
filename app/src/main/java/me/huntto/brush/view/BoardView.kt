@@ -9,7 +9,7 @@ import android.view.SurfaceView
 
 class BoardView : SurfaceView, IBoardView {
 
-    override var onAvailableListener: IBoardView.OnAvailableListener? = null
+    override var onAvailableListener: ((width: Int, height: Int) -> Unit)? = null
 
     constructor(context: Context?) : super(context)
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
@@ -18,7 +18,7 @@ class BoardView : SurfaceView, IBoardView {
     init {
         holder.addCallback(object : SurfaceHolder.Callback {
             override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
-                onAvailableListener?.onAvailable(width, height)
+                onAvailableListener?.invoke(width, height)
             }
 
             override fun surfaceDestroyed(holder: SurfaceHolder?) {

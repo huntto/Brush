@@ -5,7 +5,6 @@ import android.support.v7.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import me.huntto.brush.content.Ink
 import me.huntto.brush.log.logD
-import me.huntto.brush.view.IBoardView
 
 class MainActivity : AppCompatActivity() {
     private lateinit var board: Board
@@ -13,7 +12,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         logD("onCreate")
         setContentView(R.layout.activity_main)
-        boardView.onAvailableListener = onBoardViewAvailableListener
+        boardView.onAvailableListener = { width, height ->
+            board = Board(width, height, boardView)
+            boardView.setOnTouchListener(board.brush)
+            board.brush.maxPointer = 2
+
+            board.onCommandSizeChangedListener = { redoCommandSize: Int, undoCommandSize: Int ->
+                redoBtn.isEnabled = redoCommandSize != 0
+                undoBtn.isEnabled = undoCommandSize != 0
+            }
+        }
 
         brushBtn.setOnClickListener {
             board.brush.type = Ink.Type.PENCIL
@@ -29,20 +37,5 @@ class MainActivity : AppCompatActivity() {
         redoBtn.setOnClickListener { board.redo() }
         undoBtn.setOnClickListener { board.undo() }
         cleanBtn.setOnClickListener { board.clean() }
-    }
-
-    private val onBoardViewAvailableListener = object : IBoardView.OnAvailableListener {
-        override fun onAvailable(width: Int, height: Int) {
-            board = Board(width, height, boardView)
-            boardView.setOnTouchListener(board.brush)
-            board.brush.maxPointer = 2
-
-            board.onCommandSizeChangedListener = object : Board.OnCommandSizeChangedListener {
-                override fun onCommandSizeChanged(redoCommandSize: Int, undoCommandSize: Int) {
-                    redoBtn.isEnabled = redoCommandSize != 0
-                    undoBtn.isEnabled = undoCommandSize != 0
-                }
-            }
-        }
     }
 }

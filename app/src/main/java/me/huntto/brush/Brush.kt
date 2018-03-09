@@ -17,7 +17,7 @@ class Brush(contentWidth: Int, contentHeight: Int, private val boardView: IBoard
     var type: Ink.Type = Ink.Type.PENCIL
     var bgColor: Int = Color.LTGRAY
     var maxPointer: Int = 1
-    var onGenerateInkListener: OnGenerateInkListener? = null
+    var onGenerateInkListener: ((newInk: Ink) -> Unit)? = null
     var color: Int = Color.RED
 
     private val contentBitmap: Bitmap = Bitmap.createBitmap(contentWidth, contentHeight, Bitmap.Config.ARGB_8888)
@@ -116,7 +116,7 @@ class Brush(contentWidth: Int, contentHeight: Int, private val boardView: IBoard
                 it.drawBitmap(contentBitmap, dirtyRect, dirtyRect, null)
                 boardView.unlockCanvasAndPost(it)
             }
-            onGenerateInkListener?.onGenerate(ink)
+            onGenerateInkListener?.invoke(ink)
             pointerCount--
         }
     }
@@ -141,10 +141,6 @@ class Brush(contentWidth: Int, contentHeight: Int, private val boardView: IBoard
             it.drawBitmap(contentBitmap, 0f, 0f, null)
             boardView.unlockCanvasAndPost(it)
         }
-    }
-
-    interface OnGenerateInkListener {
-        fun onGenerate(ink: Ink)
     }
 
     fun draw(inks: ArrayList<Ink>) {

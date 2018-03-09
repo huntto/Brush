@@ -8,9 +8,5 @@ interface IBoardView {
     fun lockCanvas(dirtyRect: Rect): Canvas?
     fun unlockCanvasAndPost(canvas: Canvas?)
 
-    var onAvailableListener: OnAvailableListener?
-
-    interface OnAvailableListener {
-        fun onAvailable(width: Int, height: Int)
-    }
+    var onAvailableListener: ((width: Int, height: Int) -> Unit)?
 }

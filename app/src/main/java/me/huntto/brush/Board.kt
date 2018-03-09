@@ -16,7 +16,7 @@ class Board(boardWidth: Int, boardHeight: Int, boardView: IBoardView) {
             field = value
             brush.draw(value)
         }
-    var onCommandSizeChangedListener: OnCommandSizeChangedListener? = null
+    var onCommandSizeChangedListener: ((redoCommandSize: Int, undoCommandSize: Int) -> Unit)? = null
 
     private val redoCommands = ArrayList<ICommand>()
     private val undoCommands = ArrayList<ICommand>()
@@ -40,17 +40,17 @@ class Board(boardWidth: Int, boardHeight: Int, boardView: IBoardView) {
 
     }
 
-    private val onGenerateInkListener = object : Brush.OnGenerateInkListener {
-        override fun onGenerate(ink: Ink) {
-            redoCommands.clear()
-            undoCommands.add(AddInkCommand(ink, commandCallback))
-            inks.add(ink)
-            onCommandSizeChangedListener?.onCommandSizeChanged(redoCommands.size, undoCommands.size)
-        }
+    private fun notifyCommandSizeChanged() {
+        onCommandSizeChangedListener?.invoke(redoCommands.size, undoCommands.size)
     }
 
     init {
-        brush.onGenerateInkListener = onGenerateInkListener
+        brush.onGenerateInkListener = { newInk ->
+            redoCommands.clear()
+            undoCommands.add(AddInkCommand(newInk, commandCallback))
+            inks.add(newInk)
+            notifyCommandSizeChanged()
+        }
     }
 
     fun clean() {
@@ -60,7 +60,7 @@ class Board(boardWidth: Int, boardHeight: Int, boardView: IBoardView) {
         inks.clear()
         brush.clean()
 
-        onCommandSizeChangedListener?.onCommandSizeChanged(redoCommands.size, undoCommands.size)
+        notifyCommandSizeChanged()
     }
 
     fun undo() {
@@ -72,7 +72,7 @@ class Board(boardWidth: Int, boardHeight: Int, boardView: IBoardView) {
             brush.draw(inks)
         }
 
-        onCommandSizeChangedListener?.onCommandSizeChanged(redoCommands.size, undoCommands.size)
+        notifyCommandSizeChanged()
     }
 
     fun redo() {
@@ -84,10 +84,6 @@ class Board(boardWidth: Int, boardHeight: Int, boardView: IBoardView) {
             brush.draw(inks)
         }
 
-        onCommandSizeChangedListener?.onCommandSizeChanged(redoCommands.size, undoCommands.size)
-    }
-
-    interface OnCommandSizeChangedListener {
-        fun onCommandSizeChanged(redoCommandSize: Int, undoCommandSize: Int)
+        notifyCommandSizeChanged()
     }
 }
