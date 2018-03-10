@@ -37,18 +37,20 @@ class PencilPainter(canvas: Canvas) : BrushPainter(canvas) {
 
     override fun startStroke(point: Point, dirtyRect: Rect) {
         ink = Ink(type)
-        stroking(dirtyRect, point, Point(point))
+        ink.points.add(point)
+        ink.points.add(Point(point))
+        stroking(dirtyRect)
     }
 
-    private fun stroking(dirtyRect: Rect, vararg points: Point) {
-        ink.points.addAll(points)
+    private fun stroking(dirtyRect: Rect) {
         BezierPathBuilder.buildPath(ink.points.takeLast(maxRealTimePoints), realTimePath)
         canvas.drawPath(realTimePath, paint)
         realTimePath.computeBounds(dirtyRect, paint.strokeWidth)
     }
 
     override fun continueStroke(point: Point, dirtyRect: Rect) {
-        stroking(dirtyRect, point)
+        ink.points.add(point)
+        stroking(dirtyRect)
     }
 
     override fun endStroke(point: Point, dirtyRect: Rect): Ink {
@@ -58,8 +60,10 @@ class PencilPainter(canvas: Canvas) : BrushPainter(canvas) {
             endPoint = Point(point.x + 0.1f, point.y + 0.1f, point.size)
         }
 
-        stroking(tmpDirtyRect, endPoint)
-        stroking(dirtyRect, Point(endPoint))
+        ink.points.add(endPoint)
+        stroking(tmpDirtyRect)
+        ink.points.add(Point(endPoint))
+        stroking(tmpDirtyRect)
         dirtyRect.union(tmpDirtyRect)
         return ink
     }

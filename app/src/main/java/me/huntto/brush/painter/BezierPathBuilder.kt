@@ -22,6 +22,7 @@ object BezierPathBuilder {
 
     internal fun buildPath(points: List<Point>, path: Path, endPoint: VarPoint = VarPoint()) {
         path.reset()
+        if (points.isEmpty()) return
         var prevPoint: Point = points.first()
         for (index in 1 until points.size) {
             endPoint.x = (prevPoint.x + points[index].x) / 2
