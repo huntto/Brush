@@ -28,7 +28,7 @@ import android.graphics.*
 import me.huntto.brush.content.Ink
 import me.huntto.brush.content.Point
 
-class EraserPainter(canvas: Canvas) : BrushPainter(canvas) {
+class EraserPainter: BrushPainter() {
     override val type: Ink.Type = Ink.Type.ERASER
     override var color: Int
         get() = ovalPaint.color
@@ -41,7 +41,7 @@ class EraserPainter(canvas: Canvas) : BrushPainter(canvas) {
             paint.strokeWidth = value
             halfStrokeWidth = value / 2
         }
-    private var halfStrokeWidth: Float = 25f
+    private var halfStrokeWidth: Float = 30f
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val realTimePath: Path = Path()
@@ -63,7 +63,7 @@ class EraserPainter(canvas: Canvas) : BrushPainter(canvas) {
         paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
 
         ovalPaint.style = Paint.Style.FILL
-        ovalPaint.color = Color.YELLOW
+        ovalPaint.color = Color.GRAY
     }
 
     override fun startStroke(point: Point, dirtyRect: Rect) {

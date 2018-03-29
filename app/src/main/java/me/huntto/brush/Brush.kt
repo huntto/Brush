@@ -53,7 +53,18 @@ class Brush(contentWidth: Int, contentHeight: Int, private val boardView: IBoard
     private val dirtyRect: Rect = Rect()
 
     init {
+        simulate(Ink.Type.PENCIL)
+        simulate(Ink.Type.ERASER)
         clean()
+    }
+
+    private fun simulate(type: Ink.Type) {
+        val originType = this.type
+        this.type = type
+        startStroke(0, Point(-1f, -1f))
+        continueStroke(0, Point(-1f, -1f))
+        endStroke(0, Point(-1f, -1f))
+        this.type = originType
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -75,15 +86,16 @@ class Brush(contentWidth: Int, contentHeight: Int, private val boardView: IBoard
         event.actionIndex.let {
             val point = Point(event.getX(it), event.getY(it), event.getSize(it))
             val pointerId = event.getPointerId(it)
-            start(pointerId, point)
+            startStroke(pointerId, point)
         }
     }
 
-    private fun start(pointerId: Int, point: Point) {
+    private fun startStroke(pointerId: Int, point: Point) {
         if (pointerCount < maxPointer) {
             pointerCount++
-            brushPainters[pointerId] = BrushPainterCache.get(type, contentCanvas)
+            brushPainters[pointerId] = BrushPainterCache.get(type)
             brushPainters[pointerId]?.let {
+                it.canvas = contentCanvas
                 it.startStroke(point, dirtyRect)
                 boardView.lockCanvas(dirtyRect)?.let {
                     it.drawColor(bgColor)
@@ -100,7 +112,7 @@ class Brush(contentWidth: Int, contentHeight: Int, private val boardView: IBoard
         event.actionIndex.let {
             val point = Point(event.getX(it), event.getY(it), event.getSize(it))
             val pointerId = event.getPointerId(it)
-            start(pointerId, point)
+            startStroke(pointerId, point)
         }
     }
 
@@ -109,13 +121,17 @@ class Brush(contentWidth: Int, contentHeight: Int, private val boardView: IBoard
         for (index in 0 until event.pointerCount) {
             val pointerId = event.getPointerId(index)
             val point = Point(event.getX(index), event.getY(index), event.getSize(index))
-            brushPainters[pointerId]?.let {
-                it.continueStroke(point, dirtyRect)
-                boardView.lockCanvas(dirtyRect)?.let {
-                    it.drawColor(bgColor)
-                    it.drawBitmap(contentBitmap, dirtyRect, dirtyRect, null)
-                    boardView.unlockCanvasAndPost(it)
-                }
+            continueStroke(pointerId, point)
+        }
+    }
+
+    private fun continueStroke(pointerId: Int, point: Point) {
+        brushPainters[pointerId]?.let {
+            it.continueStroke(point, dirtyRect)
+            boardView.lockCanvas(dirtyRect)?.let {
+                it.drawColor(bgColor)
+                it.drawBitmap(contentBitmap, dirtyRect, dirtyRect, null)
+                boardView.unlockCanvasAndPost(it)
             }
         }
     }
@@ -125,11 +141,11 @@ class Brush(contentWidth: Int, contentHeight: Int, private val boardView: IBoard
         event.actionIndex.let {
             val point = Point(event.getX(it), event.getY(it), event.getSize(it))
             val pointerId = event.getPointerId(it)
-            end(pointerId, point)
+            endStroke(pointerId, point)
         }
     }
 
-    private fun end(pointerId: Int, point: Point) {
+    private fun endStroke(pointerId: Int, point: Point) {
         brushPainters[pointerId]?.let {
             val ink = it.endStroke(point, dirtyRect)
             boardView.lockCanvas(dirtyRect)?.let {
@@ -148,7 +164,7 @@ class Brush(contentWidth: Int, contentHeight: Int, private val boardView: IBoard
         event.actionIndex.let {
             val point = Point(event.getX(it), event.getY(it), event.getSize(it))
             val pointerId = event.getPointerId(it)
-            end(pointerId, point)
+            endStroke(pointerId, point)
         }
     }
 
@@ -168,7 +184,8 @@ class Brush(contentWidth: Int, contentHeight: Int, private val boardView: IBoard
     fun draw(inks: ArrayList<Ink>) {
         contentCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
         inks.forEach {
-            BrushPainterCache.get(it.type, contentCanvas).apply {
+            BrushPainterCache.get(it.type).apply {
+                canvas = contentCanvas
                 draw(it)
                 BrushPainterCache.put(this)
             }

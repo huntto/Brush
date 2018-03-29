@@ -29,7 +29,7 @@ import me.huntto.brush.content.Ink
 import me.huntto.brush.content.Point
 
 
-class PencilPainter(canvas: Canvas) : BrushPainter(canvas) {
+class PencilPainter : BrushPainter() {
     override val type: Ink.Type = Ink.Type.PENCIL
 
     override var color: Int

@@ -30,7 +30,7 @@ import me.huntto.brush.content.Ink
 import me.huntto.brush.content.Point
 import java.util.*
 
-abstract class BrushPainter(protected val canvas: Canvas) {
+abstract class BrushPainter {
     abstract val type: Ink.Type
     abstract var color: Int
     abstract var strokeWidth: Float
@@ -41,10 +41,12 @@ abstract class BrushPainter(protected val canvas: Canvas) {
 
     abstract fun draw(ink: Ink)
 
+    var canvas: Canvas = Canvas()
+
     companion object {
-        fun newInstance(type: Ink.Type, canvas: Canvas): BrushPainter = when (type) {
-            Ink.Type.ERASER -> EraserPainter(canvas)
-            else -> PencilPainter(canvas)
+        fun newInstance(type: Ink.Type): BrushPainter = when (type) {
+            Ink.Type.ERASER -> EraserPainter()
+            else -> PencilPainter()
         }
     }
 }
@@ -59,7 +61,7 @@ object BrushPainterCache {
         brushPainterMap[brushPainter.type]?.add(brushPainter)
     }
 
-    fun get(type: Ink.Type, canvas: Canvas): BrushPainter {
-        return brushPainterMap[type]?.remove() ?: BrushPainter.newInstance(type, canvas)
+    fun get(type: Ink.Type): BrushPainter {
+        return brushPainterMap[type]?.remove() ?: BrushPainter.newInstance(type)
     }
 }
